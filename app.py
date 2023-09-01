@@ -10,12 +10,9 @@ MAX_ARRAY_SIZE=1000
 
 from math import log
 
-def bytes_needed(an_integer: int):
-     if an_integer == 0:
-         return 1
-     return int(log(an_integer, 256)) + 1
-
 def byte_length(i):
+    if i == 0:
+         return 1
     return (i.bit_length() + 7) // 8
 
 def encode_int32(stream: bytearray, value: int, value_pointer=3):
@@ -66,12 +63,14 @@ buf_= encode_int32(buf_,0)
 buf_ = bytearray(b'V1|')
 buf_= encode_int32(buf_,1)
 buf_ = bytearray(b'V1|')
-#pprint(buf_)
 buf_= encode_int32(buf_,sys.maxsize)
-#pprint(buf_)
 buf_ = bytearray(b'V1|')
 buf_= encode_int32(buf_,65536)
-#pprint(buf_)
 buf_ = bytearray(b'V1|')
 buf_= encode_int32(buf_, -109870879)
-#pprint(buf_)
+buf_ = bytearray(b'V1|')
+buf_= encode_int32(buf_,-sys.maxsize)
+
+b= b'\x7f\xff\xff\xff\xff\xff\xff\xff'
+pprint(int.from_bytes(b, 'big'))
+
