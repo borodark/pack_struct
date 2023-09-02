@@ -2,7 +2,9 @@ from pympler.asizeof import asizeof
 import zlib
 import sys
 from math import log
-
+import numpy as np
+from numpy import iinfo
+from numpy import random
 from pprint import pprint
 
 MAX_STRING_LENGTH=1000000
@@ -14,7 +16,9 @@ from pympler.asizeof import asizeof
 def byte_length(i):
     if i == 0:
          return 1
-    return (i.bit_length() + 7) // 8
+    s = bin(i)       # binary representation:  bin(-37) --> '-0b100101'
+    s = s.lstrip('-0b') # remove leading zeros and minus sign 
+    return (len(s) + 8) // 8
 
 def encode_int32(stream: bytearray, value: int, value_pointer=3):
     #pprint(value)
@@ -33,7 +37,9 @@ def encode_int32(stream: bytearray, value: int, value_pointer=3):
     # should be one byte for int32 length in bytes
     #pprint(stream)
     value_pointer= value_pointer + 1
-    stream_raw[value_pointer:value_pointer + int_length_in_bytes_]= value.to_bytes(int_length_in_bytes_, signed=True)
+    #pprint(int(value))
+    pprint(int_length_in_bytes_)
+    stream_raw[value_pointer:value_pointer + int_length_in_bytes_]= int(value).to_bytes(int_length_in_bytes_, signed=True)
     value_pointer= value_pointer + int_length_in_bytes_
     return stream, value_pointer # return pointer to next byte after the value bytes
 
@@ -50,35 +56,18 @@ def decode_int32(stream_bytes: bytearray, i_marker_pointer=3):
 
 
 buf_ = bytearray(b'V1[')
-integers= [-1,1,sys.maxsize,65536,-109870879,-sys.maxsize]
+
+#integers= [-1,1,sys.maxsize,65536,-109870879,-sys.maxsize]
+
+integers= random.randint(-10000, high=10000, size=1000, dtype='int32')
+
 pprint(integers)
+
 pprint("Memory size of list:")
 pprint(asizeof(integers))
 pointer_to_the_end_of_stream=3
 for an_int32 in integers:
     buf_, pointer_to_the_end_of_stream= encode_int32(buf_,an_int32,value_pointer=pointer_to_the_end_of_stream)
-    #pprint('stream')
-    #pprint(buf_)
-    #pprint(pointer_to_the_end_of_stream)
-#buf_, pointer_to_the_end_of_stream= encode_int32(buf_,1,value_pointer=pointer_to_the_end_of_stream)
-#pprint(pointer_to_the_end_of_stream)
-#pprint('stream')
-#pprint(buf_)
-#buf_, pointer_to_the_end_of_stream= encode_int32(buf_,sys.maxsize,value_pointer=pointer_to_the_end_of_stream)
-#pprint(pointer_to_the_end_of_stream)
-#pprint('stream')
-#pprint(buf_)
-#buf_, pointer_to_the_end_of_stream= encode_int32(buf_,65536,value_pointer=pointer_to_the_end_of_stream)
-#pprint(pointer_to_the_end_of_stream)
-#pprint('stream')
-#pprint(buf_)
-#buf_, pointer_to_the_end_of_stream= encode_int32(buf_, -109870879, value_pointer=pointer_to_the_end_of_stream)
-#pprint(pointer_to_the_end_of_stream)
-#pprint('stream')
-#pprint(buf_)
-#buf_, pointer_to_the_end_of_stream= encode_int32(buf_,-sys.maxsize, value_pointer=pointer_to_the_end_of_stream)
-#pprint(pointer_to_the_end_of_stream)
-#pprint('stream final..')
 
 m = memoryview(buf_)
 b= m.tobytes()
@@ -87,31 +76,13 @@ pprint(asizeof(b))
 pprint(b)
 
 unpacked_int23z= []
-an_int32, next_marker_pointer= decode_int32(b, i_marker_pointer=3)
-unpacked_int23z.append(an_int32)
-#pprint({"an_int32":an_int32})
-#pprint({"next_marker_pointer":next_marker_pointer})
-an_int32, next_marker_pointer= decode_int32(b, i_marker_pointer=next_marker_pointer)
-unpacked_int23z.append(an_int32)
-#pprint({"an_int32":an_int32})
-#pprint({"next_marker_pointer":next_marker_pointer})
-an_int32, next_marker_pointer= decode_int32(b, i_marker_pointer=next_marker_pointer)
-unpacked_int23z.append(an_int32)
-#pprint({"an_int32":an_int32})
-#pprint({"next_marker_pointer":next_marker_pointer})
-an_int32, next_marker_pointer= decode_int32(b, i_marker_pointer=next_marker_pointer)
-unpacked_int23z.append(an_int32)
-#pprint({"an_int32":an_int32})
-#pprint({"next_marker_pointer":next_marker_pointer})
-an_int32, next_marker_pointer= decode_int32(b, i_marker_pointer=next_marker_pointer)
-unpacked_int23z.append(an_int32)
-#pprint({"an_int32":an_int32})
-#pprint({"next_marker_pointer":next_marker_pointer})
-an_int32, next_marker_pointer= decode_int32(b, i_marker_pointer=next_marker_pointer)
-unpacked_int23z.append(an_int32)
-#pprint({"an_int32":an_int32})
-#pprint({"next_marker_pointer":next_marker_pointer})
-pprint(unpacked_int23z)
+next_marker_pointer= 3
+i=0
+while i < 1000: 
+    an_int32, next_marker_pointer= decode_int32(b, i_marker_pointer=next_marker_pointer)
+    unpacked_int23z.append(an_int32)
+    i=i+1
+#pprint(unpacked_int23z)
 
 same= integers == unpacked_int23z
 pprint("are lists the same?")
