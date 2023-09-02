@@ -60,3 +60,12 @@ both are valid inputs
 [boo, 11, [bar ,32], [fa,233],]
 
 ```
+
+https://stackoverflow.com/questions/28631301/negative-integer-to-signed-32-bit-binary
+
+```
+>>> a = -2147458560
+>>> bin(a)
+'-0b1111111111111111001111000000000'
+
+```

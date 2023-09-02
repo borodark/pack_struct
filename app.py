@@ -38,7 +38,7 @@ def encode_int32(stream: bytearray, value: int, value_pointer=3):
     #pprint(stream)
     value_pointer= value_pointer + 1
     #pprint(int(value))
-    pprint(int_length_in_bytes_)
+    #pprint(int_length_in_bytes_)
     stream_raw[value_pointer:value_pointer + int_length_in_bytes_]= int(value).to_bytes(int_length_in_bytes_, signed=True)
     value_pointer= value_pointer + int_length_in_bytes_
     return stream, value_pointer # return pointer to next byte after the value bytes
@@ -59,13 +59,16 @@ buf_ = bytearray(b'V1[')
 
 #integers= [-1,1,sys.maxsize,65536,-109870879,-sys.maxsize]
 
-integers= random.randint(-10000, high=10000, size=1000, dtype='int32')
+test_list_size=10000
+integers= random.randint(-10000, high=10000, size=test_list_size, dtype='int32')
 
 pprint(integers)
 
 pprint("Memory size of list:")
 pprint(asizeof(integers))
+
 pointer_to_the_end_of_stream=3
+
 for an_int32 in integers:
     buf_, pointer_to_the_end_of_stream= encode_int32(buf_,an_int32,value_pointer=pointer_to_the_end_of_stream)
 
@@ -73,12 +76,12 @@ m = memoryview(buf_)
 b= m.tobytes()
 pprint("Memory size of encoded buffer ")
 pprint(asizeof(b))
-pprint(b)
+#pprint(b)
 
 unpacked_int23z= []
 next_marker_pointer= 3
 i=0
-while i < 1000: 
+while i < test_list_size:
     an_int32, next_marker_pointer= decode_int32(b, i_marker_pointer=next_marker_pointer)
     unpacked_int23z.append(an_int32)
     i=i+1
